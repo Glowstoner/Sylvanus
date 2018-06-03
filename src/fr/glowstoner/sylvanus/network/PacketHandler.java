@@ -19,7 +19,11 @@ public class PacketHandler implements PacketListener{
 					System.out.println("Clé de décryptage non présente ! Message crypté : "+text.getEncryptedText());
 				}
 			}else if(Sylvanus.getInstance().getMode().equals(Mode.SERVER)) {
-				System.out.println(text.getFormat(text.getText(Sylvanus.getInstance().getPrivateProfile().getKey())));
+				String c = text.getFormat(text.getText(Sylvanus.getInstance().getPrivateProfile().getKey()));
+				
+				if(c.length() > 0) {
+					System.out.println(c);
+				}
 			}
 		}
 	}

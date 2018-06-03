@@ -6,14 +6,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
+import fr.glowstoner.sylvanus.api.ModuleManager;
 import fr.glowstoner.sylvanus.boot.SylvanusBoot;
 import fr.glowstoner.sylvanus.boot.SylvanusConfig;
-import fr.glowstoner.sylvanus.commands.TestCommand;
+import fr.glowstoner.sylvanus.commands.CommandManager;
+import fr.glowstoner.sylvanus.commands.SetKeyCommand;
+import fr.glowstoner.sylvanus.commands.StopCommand;
 import fr.glowstoner.sylvanus.network.Client;
+import fr.glowstoner.sylvanus.network.Connection;
 import fr.glowstoner.sylvanus.network.Mode;
 import fr.glowstoner.sylvanus.network.Server;
 import fr.glowstoner.sylvanus.profile.PrivateProfile;
 import fr.glowstoner.sylvanus.profile.PublicProfile;
+import fr.glowstoner.sylvanus.test.Module;
 
 public class Sylvanus {
 	
@@ -27,6 +32,8 @@ public class Sylvanus {
 	private Server server;
 	private Client client;
 	private SylvanusConsole console;
+	private CommandManager cm;
+	private ModuleManager mm;
 	
 	public Sylvanus() {
 		
@@ -35,6 +42,12 @@ public class Sylvanus {
 	public void init() {
 		this.boot = new SylvanusBoot();
 		this.boot.init();
+		
+		this.cm = new CommandManager();
+		this.cm.register(new StopCommand());
+		this.cm.register(new SetKeyCommand());
+		
+		this.loadModules();
 		
 		for (int i = 0; i < 100; ++i) System.out.println();
 		
@@ -66,6 +79,29 @@ public class Sylvanus {
 		}catch(IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+	
+	public void stopInit() {
+		System.out.println("Arrêt ...");
+		
+		this.mm.stopAll();
+		
+		try {
+			this.getConnection().close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Au revoir !");
+	}
+	
+	public void loadModules() {
+		this.mm = new ModuleManager();
+		
+		this.mm.register(new Module());
+		
+		//load
+		this.mm.startAll();
 	}
 	
 	public void sendImage() {
@@ -166,6 +202,17 @@ public class Sylvanus {
 		}
 	}
 	
+	public Connection getConnection() {
+		switch (this.getMode()) {
+			case CLIENT:
+				return this.client;
+			case SERVER:
+				return this.server;
+		}
+		
+		return null;
+	}
+	
 	public SylvanusConfig getConfig() {
 		return this.config;
 	}
@@ -249,13 +296,15 @@ public class Sylvanus {
 	public SylvanusConsole getConsole() {
 		return this.console;
 	}
+	
+	public CommandManager getCommandManager() {
+		return this.cm;
+	}
 
 	public static class Main {
 		
 		public static void main(String[] args) {
 			Sylvanus.newInstance().init();
-			
-			Sylvanus.getInstance().getConsole().getCommandManager().register(new TestCommand());
 		}
 		
 	}

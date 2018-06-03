@@ -3,7 +3,6 @@ package fr.glowstoner.sylvanus;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import fr.glowstoner.sylvanus.commands.CommandManager;
 import fr.glowstoner.sylvanus.network.ConnectionHandler;
 import fr.glowstoner.sylvanus.network.PacketHandler;
 import fr.glowstoner.sylvanus.network.PacketListenerManager;
@@ -12,14 +11,11 @@ import fr.glowstoner.sylvanus.network.packet.PacketText;
 public class SylvanusConsole {
 	
 	private DataInputStream in;
-	private CommandManager cm;
 	private boolean active;
 	
 	public SylvanusConsole() {
 		this.in = new DataInputStream(System.in);
 		this.active = true;
-		
-		this.cm = new CommandManager();
 	}
 
 	public void start() throws IOException {
@@ -32,7 +28,7 @@ public class SylvanusConsole {
 			if(line.length() > 0) {
 				if(line.startsWith("/")) {
 					//cmds
-					this.cm.runCommand(line);
+					Sylvanus.getInstance().getCommandManager().runCommand(line);
 				}else {
 					this.sendMessage(line);
 				}
@@ -72,9 +68,5 @@ public class SylvanusConsole {
 				
 				break;
 		}
-	}
-	
-	public CommandManager getCommandManager() {
-		return this.cm;
 	}
 }

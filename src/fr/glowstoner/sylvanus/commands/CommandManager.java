@@ -1,5 +1,6 @@
 package fr.glowstoner.sylvanus.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -14,8 +15,10 @@ public class CommandManager {
 	}
 
 	public void register(Command command) {
-		if(!this.commands.containsKey(command.getName())) {
-			this.commands.put(command.getName(), command);
+		System.out.println("register cmd -> "+command.getName()+" / "+command.description());
+		
+		if(!this.commands.containsKey(command.getName().toLowerCase())) {
+			this.commands.put(command.getName().toLowerCase(), command);
 		}
 	}
 	
@@ -24,6 +27,8 @@ public class CommandManager {
 		if(base.length() == 0) {
 			return;
 		}
+		
+		base = base.substring(1);
 		
 		if(base.startsWith(" ")) {
 			int index = -1;
@@ -39,17 +44,36 @@ public class CommandManager {
 			base = base.substring(index);
 		}
 		
-		String[] all = base.split(" ");
+		String[] splited = base.split(" ");
+		List<String> spl = new ArrayList<String>();
+		
+		for(String el : splited) {
+			if(el.length() > 0) {
+				spl.add(el);
+			}
+		}
+		
+		String[] all = new String[spl.size()];
+		
+		for(int j = 0 ; j < spl.size() ; j++) {
+			all[j] = spl.get(j);
+		}
+		
 		String commandBase = all[0];
 		
-		List<String> alll = Arrays.asList(all);
-		alll.remove(commandBase);
+		List<String> alll = new ArrayList<>(Arrays.asList(all));
 		
-		String[] args = (String[]) alll.toArray();
+		alll.remove(0);
+		
+		String[] args = new String[alll.size()];
+		
+		for(int j = 0 ; j < alll.size() ; j++) {
+			args[j] = alll.get(j);
+		}
 		
 		//execution
-		if(this.commands.containsKey(commandBase)) {
-			Command c = this.commands.get(commandBase);
+		if(this.commands.containsKey(commandBase.toLowerCase())) {
+			Command c = this.commands.get(commandBase.toLowerCase());
 			
 			c.execute(commandBase, args);
 		}else {
